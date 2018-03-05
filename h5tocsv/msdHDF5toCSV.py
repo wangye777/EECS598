@@ -167,7 +167,7 @@ def main():
         #################################################
         #change the order of the csv file here
         #Default is to list all available attributes (in alphabetical order)
-        csvRowString = ("TrackId,SongID,AlbumID,AlbumName,ArtistID,ArtistLatitude,ArtistLocation,"+
+        csvRowString = ("SongID,AlbumID,AlbumName,TrackId,ArtistID,ArtistLatitude,ArtistLocation,"+
             "ArtistLongitude,ArtistName,Danceability,Duration,KeySignature,"+
             "KeySignatureConfidence,Tempo,TimeSignature,TimeSignatureConfidence,"+
             "Title,Year")
@@ -185,7 +185,7 @@ def main():
 
     #Set the basedir here, the root directory from which the search
     #for files stored in a (hierarchical data structure) will originate
-    basedir = "." # "." As the default means the current directory
+    basedir = "/home/umwangye/millonsong/MillionSongSubset/data/" # "." As the default means the current directory
     ext = ".h5" #Set the extension here. H5 is the extension for HDF5 files.
     #################################################
 
@@ -196,7 +196,7 @@ def main():
             print f
 
             songH5File = hdf5_getters.open_h5_file_read(f)
-            song = Song(str(hdf5_getters.get_song_id(songH5File)))
+            #song = Song(str(hdf5_getters.get_song_id(songH5File)))
 
             #testDanceability = hdf5_getters.get_danceability(songH5File)
             # print type(testDanceability)
@@ -204,7 +204,7 @@ def main():
             numPerH5 = hdf5_getters.get_num_songs(songH5File)
 
             for cnt in range(numPerH5):
-
+		song = Song(str(hdf5_getters.get_song_id(songH5File, cnt)))
                 song.trackId = str(hdf5_getters.get_track_id(songH5File, cnt))
                 song.artistID = str(hdf5_getters.get_artist_id(songH5File, cnt))
                 song.albumID = str(hdf5_getters.get_release_7digitalid(songH5File, cnt))
