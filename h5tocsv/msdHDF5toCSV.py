@@ -51,7 +51,7 @@ class Song:
         self.id = songID
         Song.songCount += 1
         # Song.songDictionary[songID] = self
-
+        self.trackId = None
         self.albumName = None
         self.albumID = None
         self.artistID = None
@@ -167,7 +167,7 @@ def main():
         #################################################
         #change the order of the csv file here
         #Default is to list all available attributes (in alphabetical order)
-        csvRowString = ("SongID,AlbumID,AlbumName,ArtistID,ArtistLatitude,ArtistLocation,"+
+        csvRowString = ("SongID,AlbumID,AlbumName,TrackId,ArtistID,ArtistLatitude,ArtistLocation,"+
             "ArtistLongitude,ArtistName,Danceability,Duration,KeySignature,"+
             "KeySignatureConfidence,Tempo,TimeSignature,TimeSignatureConfidence,"+
             "Title,Year")
@@ -185,7 +185,7 @@ def main():
 
     #Set the basedir here, the root directory from which the search
     #for files stored in a (hierarchical data structure) will originate
-    basedir = "." # "." As the default means the current directory
+    basedir = "/home/umwangye/millonsong/MillionSongSubset/data/" # "." As the default means the current directory
     ext = ".h5" #Set the extension here. H5 is the extension for HDF5 files.
     #################################################
 
@@ -196,96 +196,103 @@ def main():
             print f
 
             songH5File = hdf5_getters.open_h5_file_read(f)
-            song = Song(str(hdf5_getters.get_song_id(songH5File)))
+            #song = Song(str(hdf5_getters.get_song_id(songH5File)))
 
-            testDanceability = hdf5_getters.get_danceability(songH5File)
+            #testDanceability = hdf5_getters.get_danceability(songH5File)
             # print type(testDanceability)
             # print ("Here is the danceability: ") + str(testDanceability)
+            numPerH5 = hdf5_getters.get_num_songs(songH5File)
 
-            song.artistID = str(hdf5_getters.get_artist_id(songH5File))
-            song.albumID = str(hdf5_getters.get_release_7digitalid(songH5File))
-            song.albumName = str(hdf5_getters.get_release(songH5File))
-            song.artistLatitude = str(hdf5_getters.get_artist_latitude(songH5File))
-            song.artistLocation = str(hdf5_getters.get_artist_location(songH5File))
-            song.artistLongitude = str(hdf5_getters.get_artist_longitude(songH5File))
-            song.artistName = str(hdf5_getters.get_artist_name(songH5File))
-            song.danceability = str(hdf5_getters.get_danceability(songH5File))
-            song.duration = str(hdf5_getters.get_duration(songH5File))
-            # song.setGenreList()
-            song.keySignature = str(hdf5_getters.get_key(songH5File))
-            song.keySignatureConfidence = str(hdf5_getters.get_key_confidence(songH5File))
-            # song.lyrics = None
-            # song.popularity = None
-            song.tempo = str(hdf5_getters.get_tempo(songH5File))
-            song.timeSignature = str(hdf5_getters.get_time_signature(songH5File))
-            song.timeSignatureConfidence = str(hdf5_getters.get_time_signature_confidence(songH5File))
-            song.title = str(hdf5_getters.get_title(songH5File))
-            song.year = str(hdf5_getters.get_year(songH5File))
+            for cnt in range(numPerH5):
+		song = Song(str(hdf5_getters.get_song_id(songH5File, cnt)))
+                song.trackId = str(hdf5_getters.get_track_id(songH5File, cnt))
+                song.artistID = str(hdf5_getters.get_artist_id(songH5File, cnt))
+                song.albumID = str(hdf5_getters.get_release_7digitalid(songH5File, cnt))
+                song.albumName = str(hdf5_getters.get_release(songH5File, cnt))
+                song.artistLatitude = str(hdf5_getters.get_artist_latitude(songH5File, cnt))
+                song.artistLocation = str(hdf5_getters.get_artist_location(songH5File, cnt))
+                song.artistLongitude = str(hdf5_getters.get_artist_longitude(songH5File, cnt))
+                song.artistName = str(hdf5_getters.get_artist_name(songH5File, cnt))
+                song.danceability = str(hdf5_getters.get_danceability(songH5File, cnt))
+                song.duration = str(hdf5_getters.get_duration(songH5File, cnt))
+                # song.setGenreList()
+                song.keySignature = str(hdf5_getters.get_key(songH5File, cnt))
+                song.keySignatureConfidence = str(hdf5_getters.get_key_confidence(songH5File, cnt))
+                # song.lyrics = None
+                # song.popularity = None
+                song.tempo = str(hdf5_getters.get_tempo(songH5File, cnt))
+                song.timeSignature = str(hdf5_getters.get_time_signature(songH5File, cnt))
+                song.timeSignatureConfidence = str(hdf5_getters.get_time_signature_confidence(songH5File, cnt))
+                song.title = str(hdf5_getters.get_title(songH5File, cnt))
+                song.year = str(hdf5_getters.get_year(songH5File, cnt))
 
-            #print song count
-            csvRowString += str(song.songCount) + ","
+                #print song count
+                csvRowString += str(song.songCount) + ","
 
-            for attribute in csvAttributeList:
-                # print "Here is the attribute: " + attribute + " \n"
+                for attribute in csvAttributeList:
+                    # print "Here is the attribute: " + attribute + " \n"
 
-                if attribute == 'AlbumID'.lower():
-                    csvRowString += song.albumID
-                elif attribute == 'AlbumName'.lower():
-                    albumName = song.albumName
-                    albumName = albumName.replace(',',"")
-                    csvRowString += "\"" + albumName + "\""
-                elif attribute == 'ArtistID'.lower():
-                    csvRowString += "\"" + song.artistID + "\""
-                elif attribute == 'ArtistLatitude'.lower():
-                    latitude = song.artistLatitude
-                    if latitude == 'nan':
-                        latitude = ''
-                    csvRowString += latitude
-                elif attribute == 'ArtistLocation'.lower():
-                    location = song.artistLocation
-                    location = location.replace(',','')
-                    csvRowString += "\"" + location + "\""
-                elif attribute == 'ArtistLongitude'.lower():
-                    longitude = song.artistLongitude
-                    if longitude == 'nan':
-                        longitude = ''
-                    csvRowString += longitude                
-                elif attribute == 'ArtistName'.lower():
-                    csvRowString += "\"" + song.artistName + "\""                
-                elif attribute == 'Danceability'.lower():
-                    csvRowString += song.danceability
-                elif attribute == 'Duration'.lower():
-                    csvRowString += song.duration
-                elif attribute == 'KeySignature'.lower():
-                    csvRowString += song.keySignature
-                elif attribute == 'KeySignatureConfidence'.lower():
-                    # print "key sig conf: " + song.timeSignatureConfidence                                 
-                    csvRowString += song.keySignatureConfidence
-                elif attribute == 'SongID'.lower():
-                    csvRowString += "\"" + song.id + "\""
-                elif attribute == 'Tempo'.lower():
-                    # print "Tempo: " + song.tempo
-                    csvRowString += song.tempo
-                elif attribute == 'TimeSignature'.lower():
-                    csvRowString += song.timeSignature
-                elif attribute == 'TimeSignatureConfidence'.lower():
-                    # print "time sig conf: " + song.timeSignatureConfidence                                   
-                    csvRowString += song.timeSignatureConfidence
-                elif attribute == 'Title'.lower():
-                    csvRowString += "\"" + song.title + "\""
-                elif attribute == 'Year'.lower():
-                    csvRowString += song.year
-                else:
-                    csvRowString += "Erm. This didn't work. Error. :( :(\n"
+                    if attribute == 'AlbumID'.lower():
+                        csvRowString += song.albumID
+                    elif attribute == 'AlbumName'.lower():
+                        albumName = song.albumName
+                        albumName = albumName.replace(',',"")
+                        csvRowString += "\"" + albumName + "\""
+                    elif attribute == 'TrackId'.lower():
+                        csvRowString += song.trackId
+                    elif attribute == 'ArtistID'.lower():
+                        csvRowString += "\"" + song.artistID + "\""
+                    elif attribute == 'ArtistLatitude'.lower():
+                        latitude = song.artistLatitude
+                        if latitude == 'nan':
+                            latitude = ''
+                        csvRowString += latitude
+                    elif attribute == 'ArtistLocation'.lower():
+                        location = song.artistLocation
+                        location = location.replace(',','')
+                        csvRowString += "\"" + location + "\""
+                    elif attribute == 'ArtistLongitude'.lower():
+                        longitude = song.artistLongitude
+                        if longitude == 'nan':
+                            longitude = ''
+                        csvRowString += longitude                
+                    elif attribute == 'ArtistName'.lower():
+                        csvRowString += "\"" + song.artistName + "\""                
+                    elif attribute == 'Danceability'.lower():
+                        csvRowString += song.danceability
+                    elif attribute == 'Duration'.lower():
+                        csvRowString += song.duration
+                    elif attribute == 'KeySignature'.lower():
+                        csvRowString += song.keySignature
+                    elif attribute == 'KeySignatureConfidence'.lower():
+                        # print "key sig conf: " + song.timeSignatureConfidence                                 
+                        csvRowString += song.keySignatureConfidence
+                    elif attribute == 'SongID'.lower():
+                        csvRowString += "\"" + song.id + "\""
+                    elif attribute == 'Tempo'.lower():
+                        # print "Tempo: " + song.tempo
+                        csvRowString += song.tempo
+                    elif attribute == 'TimeSignature'.lower():
+                        csvRowString += song.timeSignature
+                    elif attribute == 'TimeSignatureConfidence'.lower():
+                        # print "time sig conf: " + song.timeSignatureConfidence                                   
+                        csvRowString += song.timeSignatureConfidence
+                    elif attribute == 'Title'.lower():
+                        csvRowString += "\"" + song.title + "\""
+                    elif attribute == 'Year'.lower():
+                        csvRowString += song.year
 
-                csvRowString += ","
+                    else:
+                        csvRowString += "Erm. This didn't work. Error. :( :(\n"
 
-            #Remove the final comma from each row in the csv
-            lastIndex = len(csvRowString)
-            csvRowString = csvRowString[0:lastIndex-1]
-            csvRowString += "\n"
-            outputFile1.write(csvRowString)
-            csvRowString = ""
+                    csvRowString += ","
+
+                #Remove the final comma from each row in the csv
+                lastIndex = len(csvRowString)
+                csvRowString = csvRowString[0:lastIndex-1]
+                csvRowString += "\n"
+                outputFile1.write(csvRowString)
+                csvRowString = ""
 
             songH5File.close()
 
